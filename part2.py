@@ -95,14 +95,15 @@ def adjacent_electrodes(electrode1, electrode2, electrode_wire_dict):
 
 
 # function to make gui to show simulation
-def gui(adjacency_matrix, electrodes, wires, r_e):
+def gui(adjacency_matrix, electrodes, wires, r_e, l):
 
 	WINDOW_SIZE = 800
 
 	n_e = len(electrodes)
 	n_w = len(wires)
 
-	# radius for purposes of drawing radiums
+	# dynamically scale radius based on number of electrodes
+	# so that the electrodes all fit on the screen
 	scaled_radius = r_e * WINDOW_SIZE / (n_e)
 
 	base = tk.Tk()
@@ -117,9 +118,26 @@ def gui(adjacency_matrix, electrodes, wires, r_e):
 	for electrode in electrodes:
 		center_x = electrode[0] * WINDOW_SIZE
 		center_y = electrode[1] * WINDOW_SIZE
+		# drawing function takes in a bounding box, not center and radius
 		canvas.create_oval(center_x + 2*scaled_radius, center_y + 2*scaled_radius,
 			center_x + scaled_radius, center_y + scaled_radius, outline="#f11", 
 			fill="#f11", width=scaled_radius)
+
+	# draw wires
+	for wire in wires:
+		start_x = wire[0][0]
+		start_y = wire[0][1]
+		end_x = wire[1][0]
+		end_y = wire[1][1]
+
+		# scale 
+		scaled_start_x = (start_x / l) * WINDOW_SIZE
+		scaled_start_y = (start_y / l) * WINDOW_SIZE
+		scaled_end_x = (end_x / l) * WINDOW_SIZE
+		scaled_end_y = (end_y / l) * WINDOW_SIZE
+
+		canvas.create_line(scaled_start_x, scaled_start_y, scaled_end_x, scaled_end_y,
+			width=3, fill="blue")
 
 	canvas.pack()
 
@@ -128,7 +146,7 @@ def gui(adjacency_matrix, electrodes, wires, r_e):
 
 
 # main backend function to generate wires, electrodes, and adj matrix
-def generate_simulation(a=1, r_e=0.4, n_e=16, lambda_constant=30):
+def generate_simulation(a=1, r_e=0.4, n_e=9, lambda_constant=30):
         
     # height/width of grid
     l = a * (1 + sqrt(n_e)) 
@@ -204,7 +222,7 @@ def generate_simulation(a=1, r_e=0.4, n_e=16, lambda_constant=30):
     for i in range(len(adjacency_matrix)):
         print(adjacency_matrix[i])
 
-    gui(adjacency_matrix, electrodes, wires, r_e)
+    gui(adjacency_matrix, electrodes, wires, r_e, l)
 
     return adjacency_matrix
 
