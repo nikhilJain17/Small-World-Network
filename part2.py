@@ -1,4 +1,4 @@
-import tkinter
+import tkinter as tk
 import random
 from math import sqrt
 
@@ -93,8 +93,42 @@ def adjacent_electrodes(electrode1, electrode2, electrode_wire_dict):
         
     return 0
 
-# main function to run simulation
-def main(a=1, r_e=0.4, n_e=9, lambda_constant=30):
+
+# function to make gui to show simulation
+def gui(adjacency_matrix, electrodes, wires, r_e):
+
+	WINDOW_SIZE = 800
+
+	n_e = len(electrodes)
+	n_w = len(wires)
+
+	# radius for purposes of drawing radiums
+	scaled_radius = r_e * WINDOW_SIZE / (n_e)
+
+	base = tk.Tk()
+	base.resizable(width=False, height=False)
+
+	# add gui components
+	canvas = tk.Canvas(master=base, width=WINDOW_SIZE, height=WINDOW_SIZE, bg='black')
+
+	# draw electrodes
+	spacing = WINDOW_SIZE / n_e
+
+	for electrode in electrodes:
+		center_x = electrode[0] * WINDOW_SIZE
+		center_y = electrode[1] * WINDOW_SIZE
+		canvas.create_oval(center_x + 2*scaled_radius, center_y + 2*scaled_radius,
+			center_x + scaled_radius, center_y + scaled_radius, outline="#f11", 
+			fill="#f11", width=scaled_radius)
+
+	canvas.pack()
+
+	base.mainloop()
+
+
+
+# main backend function to generate wires, electrodes, and adj matrix
+def generate_simulation(a=1, r_e=0.4, n_e=16, lambda_constant=30):
         
     # height/width of grid
     l = a * (1 + sqrt(n_e)) 
@@ -106,6 +140,9 @@ def main(a=1, r_e=0.4, n_e=9, lambda_constant=30):
     wires = []
     for i in range(n_w):
         wires.append(generate_wire(l))
+
+    for w in wires:
+    	print(w)
         
     # generate electrode coordinates
     # they are evenly spaced out along the lxl grid
@@ -122,11 +159,10 @@ def main(a=1, r_e=0.4, n_e=9, lambda_constant=30):
     
     for electrode in electrodes:
         for wire in wires:
-            # wires_touching = []
-            # if electrode_touching_wire(electrode, wire, r_e):
-            #     wires_touching.append(wire)
-            # electrode_wire_dict[electrode] = wires_touching
-            electrode_wire_dict[electrode] = []
+            wires_touching = []
+            if electrode_touching_wire(electrode, wire, r_e):
+                wires_touching.append(wire)
+            electrode_wire_dict[electrode] = wires_touching
 
 
     # generate adjacency matrix for electrodes
@@ -168,5 +204,8 @@ def main(a=1, r_e=0.4, n_e=9, lambda_constant=30):
     for i in range(len(adjacency_matrix)):
         print(adjacency_matrix[i])
 
+    gui(adjacency_matrix, electrodes, wires, r_e)
 
-main()
+    return adjacency_matrix
+
+generate_simulation()
