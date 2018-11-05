@@ -165,7 +165,7 @@ def gui(adjacency_matrix, electrodes, wires, r_e, l):
 	n_e = len(electrodes)
 	n_w = len(wires)
 
-	scaled_radius = r_e * WINDOW_SIZE / (n_e + 1)
+	scaled_radius = r_e * 2 * WINDOW_SIZE / l
 
 	# base gui components
 	base = tk.Tk()
@@ -173,15 +173,49 @@ def gui(adjacency_matrix, electrodes, wires, r_e, l):
 
 	canvas = tk.Canvas(master=base, width=WINDOW_SIZE, height=WINDOW_SIZE, bg='white')
 
+	counter = 0
+	# draw electrodes
 	for electrode in electrodes:
 		r_e = electrode.radius
 		center_x, center_y = electrode.center.x, electrode.center.y
 		center_x *= WINDOW_SIZE / l
-		center_y *= WINDOW_SIZE / l
-		print(center_x, center_y)
-		canvas.create_oval(center_x - r_e, center_y - r_e, 
-			center_x + r_e, center_y + r_e, 
-			outline="#f11", fill="#f11", width=scaled_radius)
+		center_y *= WINDOW_SIZE / l 
+
+		# fill circle
+		i = 0
+		while i < scaled_radius:
+			canvas.create_oval(center_x - r_e, center_y - r_e, 
+				center_x + r_e, center_y + r_e, 
+				outline="red", fill="red", width=scaled_radius - i)
+
+			i += scaled_radius / 25 
+
+	
+
+		canvas.create_text(center_x, 
+			center_y, text=str(counter))
+
+		counter += 1
+
+	# draw wires
+	for wire in wires:
+		startx, starty = wire.start.x, wire.start.y
+		endx, endy = wire.end.x, wire.end.y 
+
+		startx *= WINDOW_SIZE / l
+		starty *= WINDOW_SIZE / l
+		endx *= WINDOW_SIZE / l
+		endy *= WINDOW_SIZE / l
+
+		# print("original ", wire.start.x, wire.start.y)
+		# print("after", startx, starty, "\n_______________")
+
+		# print("original222222 ", wire.end.x, wire.end.y)
+		# print("after2222", endx, endy, "\n_ _ _ _ _ _ _ _ _ _ _ _ _ _")
+
+		# TODO UNCOMMENT
+		canvas.create_line(startx, starty, endx, endy,
+			width=3, fill="blue")
 
 	canvas.pack()
 	base.mainloop()
@@ -200,7 +234,6 @@ def main(a, r_e, n_e, density_constant):
 
 	l = a * (1 + sqrt(n_e))					# dim of grid
 	n_w = int(density_constant * sqrt(n_e))	# num of wires
-
 
 	# Generate wires
 	wires = [create_wire(l) for x in range(0, n_w)]
