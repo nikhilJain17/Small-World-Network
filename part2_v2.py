@@ -152,7 +152,7 @@ def adjacent_electrodes(e1, e2):
 
 	return 0
 
-def gui(adjacency_matrix, electrodes, wires):
+def gui(adjacency_matrix, electrodes, wires, r_e, l):
 	'''
 	Input: 	adjacency_matrix, a matrix of adjacencies
 			electrodes, a list of electrodes
@@ -165,11 +165,26 @@ def gui(adjacency_matrix, electrodes, wires):
 	n_e = len(electrodes)
 	n_w = len(wires)
 
+	scaled_radius = r_e * WINDOW_SIZE / (n_e + 1)
+
 	# base gui components
 	base = tk.Tk()
 	base.resizable(width=False, height=False)
 
+	canvas = tk.Canvas(master=base, width=WINDOW_SIZE, height=WINDOW_SIZE, bg='white')
 
+	for electrode in electrodes:
+		r_e = electrode.radius
+		center_x, center_y = electrode.center.x, electrode.center.y
+		center_x *= WINDOW_SIZE / l
+		center_y *= WINDOW_SIZE / l
+		print(center_x, center_y)
+		canvas.create_oval(center_x - r_e, center_y - r_e, 
+			center_x + r_e, center_y + r_e, 
+			outline="#f11", fill="#f11", width=scaled_radius)
+
+	canvas.pack()
+	base.mainloop()
 
 def main(a, r_e, n_e, density_constant):
 	'''
@@ -215,6 +230,8 @@ def main(a, r_e, n_e, density_constant):
 		for j in range(0, n_e):
 			s += str(adjacency_matrix[i][j]) + " "
 		print(s)
+
+	gui(adjacency_matrix, electrodes, wires, r_e, l)
 
 main(a=1, r_e=0.4, n_e=9, density_constant=30)
 
