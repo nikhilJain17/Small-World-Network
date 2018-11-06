@@ -188,7 +188,7 @@ def gui(adjacency_matrix, electrodes, wires, r_e, l):
 				center_x + r_e, center_y + r_e, 
 				outline="red", fill="red", width=scaled_radius - i)
 
-			i += scaled_radius / 25 
+			i += scaled_radius / 100 
 
 	
 
